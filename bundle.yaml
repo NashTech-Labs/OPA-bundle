@@ -1,0 +1,26 @@
+############################################################
+# Example configuration to bootstrap OPA-Istio sidecars.(will fecth from s3 and apply policy)
+############################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-istio-config
+data:
+  config.yaml: |
+    services:
+      - name: controller
+        url: //s3-link where bundle is stored and make it public otherwise you need to craete a service entry on the cluster
+    bundles:
+      authz:
+        service: controller
+        resource: downloadBundle
+        polling:
+          min_delay_seconds: 10
+          max_delay_seconds: 20
+    plugins:
+      envoy_ext_authz_grpc:
+        addr: :9191
+        query: data.istio.authz.allow
+        dry-run: false
+        enable-reflection: false
+

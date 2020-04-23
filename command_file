@@ -1,0 +1,18 @@
+istioctl manifest apply --set profile=demo
+kubectl get pods -n istio-system
+kubectl get pods
+kubectl apply -f quickstart.yaml
+kubectl label namespace default opa-istio-injection="enabled"
+kubectl label namespace default istio-injection="enabled"
+kubectl apply -f  bookinfo.yaml
+kubectl apply -f bookinfogateway.yaml
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+export INGRESS_HOST=$(minikube ip)
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+echo $GATEWAY_URL
+
+curl --user alice:password -i http://$GATEWAY_URL/productpage
+curl --user alice:password -i http://$GATEWAY_URL/api/v1/products
+
+curl --user bob:password -i http://$GATEWAY_URL/productpage
+curl --user bob:password -i http://$GATEWAY_URL/api/v1/products
